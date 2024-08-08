@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Vendor {
+  createdAt  DateTime  @default(now())
+  email      String?
+  id         String    @id @default(cuid())
+  isApproved Boolean?
+  password   String?
+  products   Product[]
+  updatedAt  DateTime  @updatedAt
+}
+
+model Admin {
+  createdAt DateTime @default(now())
+  email     String?
+  id        String   @id @default(cuid())
+  password  String?
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  createdAt   DateTime   @default(now())
+  description String?
+  id          String     @id @default(cuid())
+  name        String?
+  orders      Order[]
+  price       Float?
+  reviews     Review[]
+  updatedAt   DateTime   @updatedAt
+  vendor      Vendor?    @relation(fields: [vendorId], references: [id])
+  vendorId    String?
+  wishlists   Wishlist[]
+}
+
+model Wishlist {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Review {
+  comment   String?
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  rating    Int?
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Order {
+  createdAt DateTime         @default(now())
+  id        String           @id @default(cuid())
+  product   Product?         @relation(fields: [productId], references: [id])
+  productId String?
+  status    EnumOrderStatus?
+  updatedAt DateTime         @updatedAt
+  user      User?            @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  createdAt DateTime   @default(now())
+  email     String?    @unique
+  firstName String?
+  id        String     @id @default(cuid())
+  lastName  String?
+  orders    Order[]
+  password  String
+  reviews   Review[]
+  roles     Json
+  updatedAt DateTime   @updatedAt
+  username  String     @unique
+  wishlists Wishlist[]
+}
+
+enum EnumOrderStatus {
+  Option1
+}
